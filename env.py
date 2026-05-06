@@ -53,7 +53,6 @@ class UmaEnv(gym.Env):
         
         action_id = action + 1
 
-        # 🔥 前25回合：穩定拉羈絆（最多人優先 + tie random）
         if self.current_round <= 25:
             if old_hp < 50:
                 action_id = 6
@@ -64,7 +63,6 @@ class UmaEnv(gym.Env):
                 best_actions = [i + 1 for i, v in enumerate(counts) if v == max_count]
                 action_id = random.choice(best_actions)
 
-        # 🔥 後期：彩圈策略（優先彩圈，其次人數）
         else:
             if old_hp < 50:
                 action_id = 6
