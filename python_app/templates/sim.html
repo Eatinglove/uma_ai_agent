@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アオハル盃・模擬沙盒</title>
+<style>
+  :root{--bg:#1a1a2e;--card:#16213e;--accent:#0f3460;--hi:#e94560;--text:#eee;--muted:#aaa;--ok:#4caf50;--warn:#ff9800;--bad:#f44336;--gold:#ffd54f}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  header{background:var(--accent);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{font-size:1.15em}
+  header .sub{color:var(--muted);font-size:.85em}
+  header a{color:var(--text);font-size:.85em;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:4px 10px;border-radius:5px}
+  .wrap{max-width:1280px;margin:0 auto;padding:16px}
+  .ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .btn{background:var(--hi);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.9em}
+  .btn:hover{filter:brightness(1.15)}
+  .btn.gray{background:var(--accent)}
+  .btn.ok{background:var(--ok)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.act{flex:1;min-width:52px;padding:12px 8px}
+  input{width:90px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.9em}
+  .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+  .card{background:var(--card);border-radius:8px;padding:10px 14px}
+  .card .lbl{color:var(--muted);font-size:.75em;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+  .card .val{font-size:1.15em;font-weight:700}
+  .card .val.mono{font-size:.95em}
+  .bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;margin-top:6px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:4px}
+  .margin-b{margin-bottom:14px}
+  .label-s{color:var(--muted);font-size:.8em;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px}
+  .col{background:var(--card);border:2px solid transparent;border-radius:10px;padding:12px;cursor:pointer;transition:.15s;position:relative}
+  .col:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .col.clickable{border-color:rgba(76,175,80,.4)}
+  .col.clickable:hover{border-color:var(--ok)}
+  .col.disabled{opacity:.4;cursor:default}
+  .col .chead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .col .chead .tname{font-weight:700}
+  .col .chead .tlv{color:var(--muted);font-size:.85em}
+  .col .cfail{font-size:.8em;margin-bottom:6px}
+  .col .cfail .f{font-weight:700}
+  .col .cprev{font-size:.78em;color:var(--ok);margin-bottom:4px;word-spacing:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+  .chip{background:rgba(255,255,255,.08);border-radius:5px;padding:2px 7px;font-size:.75em;white-space:nowrap}
+  .chip.arrow{background:rgba(76,175,80,.18);color:var(--ok)}
+  .chip.soul{background:rgba(233,69,96,.25);color:#ff7b93;font-weight:700}
+  .chip.sp{background:rgba(255,213,79,.22);color:var(--gold);font-weight:700}
+  .mat{font-size:.75em;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border-radius:10px;padding:14px}
+  .panel+.panel{margin-top:14px}
+  table{width:100%;border-collapse:collapse;font-size:.85em}
+  th{color:var(--muted);text-align:left;font-weight:600;padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.12)}
+  td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .mono{font-family:Consolas,monospace}
+  .hist-line{padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08);font-size:.85em}
+  .hist-line .t{color:var(--muted);font-size:.75em}
+  .burst{color:var(--gold);font-weight:700}
+  .soul-txt{color:#ff7b93;font-weight:700}
+  .ok-txt{color:var(--ok)} .warn-txt{color:var(--warn)} .bad-txt{color:var(--bad)}
+  .marks-line>div{padding:3px 0}
+  .marks-box{background:rgba(255,255,255,.04);border-radius:6px;padding:8px 10px;margin-top:6px;font-size:.8em;font-family:Consolas,monospace}
+  .act-row{display:flex;gap:8px;margin-bottom:14px}
+  .live-chip{display:inline-block;background:rgba(76,175,80,.15);border-radius:5px;padding:2px 8px;font-size:.75em;color:var(--ok);margin-left:6px}
+  .note{background:rgba(233,69,96,.15);padding:8px 12px;border-radius:6px;color:var(--hi);font-size:.85em;margin-bottom:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>アオハル盃・模擬沙盒</h1>
+  <span class="sub" id="modeLabel">—</span>
+  <span style="flex:1"></span>
+  <a href="/">⇦ 回到 UMA Assistant</a>
+</header>
+
+<div class="wrap">
+  <div class="ctrl">
+    <button class="btn gray" id="freshBtn">新規一局 (seed)</button>
+    <input id="seedInput" type="number" placeholder="seed 隨機">
+    <button class="btn gray" id="liveBtn">實戰繼承 (watcher)</button>
+    <button class="btn gray" id="refreshBtn">重繪</button>
+  </div>
+  <div id="noteBox"></div>
+
+  <div class="status-grid" id="statusRow"></div>
+
+  <div class="label-s">訓練欄 (點擊操作)</div>
+  <div class="cols" id="colGrid"></div>
+
+  <div class="label-s">其他行動</div>
+  <div class="act-row" id="actRow"></div>
+
+  <div class="grid2">
+    <div>
+      <div class="panel">
+        <div class="label-s">部活メンバー</div>
+        <div id="memberTable"></div>
+        <div class="label-s" style="margin-top:12px">支援カード（情誼）</div>
+        <div id="cardTable"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="label-s">白箭頭・爆発標記（sim）</div>
+        <div id="simMarks" class="marks-box"></div>
+        <div class="label-s" style="margin-top:12px">實戰 marks（watcher 對照）</div>
+        <div id="liveMarks" class="marks-box"></div>
+      </div>
+      <div class="panel">
+        <div class="label-s">行動履歴</div>
+        <div id="history"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/sim.js"></script>
+</body>
+</html>
