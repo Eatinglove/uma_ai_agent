@@ -109,18 +109,6 @@ python python_app\interactive_aoharu.py --auto "0,2,5"  # 非互動跑一串
 
 指令：`0 速/1 耐/2 力/3 根/4 智/5 休/6 外/7 賽`、`s` 重印棋盤、`w` 印 watcher 格式 marks、`d N` 成員明細、`q` 結束。每回合標記 白箭頭（部活成員）/ 魂爆● / 極爆★ 與渦條進度。
 
-### 4. C++ 引擎對照（Parity）
-
-確保兩邊模擬行為一致：
-
-```
-cd python_app
-python parity_harness.py --n 1200 --per-run 100
-```
-
-- `board` 必須 0 diff；
-- `parity` 各行動平均分在 RNG 流差異內收斂（<~1%）；
-- `recommend`（多樹 MCTS）為資訊欄，樹元素跨 PRNG 結構不同，近距候選 ±2% 內平手不算 FAIL。
 
 ---
 
@@ -128,14 +116,6 @@ python parity_harness.py --n 1200 --per-run 100
 
 - **以 MCTS 多樹聚合（votes）為準**，非立即值：剩餘回合多、主屬接近上限時立即值會高估高屬欄，深層 rollout 才能反映成長遞減，長局應缺項優先。
 - URA 的路線：`python_app\state\target.json` 可設定目標距離（`demo_recommend.py --target 1400` 等）；アオハル無需設定。
-
----
-
-## 常見問題
-
-- **看不到書架/沒人站欄？** 確認 watcher 有在跑（state/current_turn.json 有更新）、且比對的是同場遊戲。
-- **想清掉診斷腳本？** 根目錄與 `python_app\dev_scratch\` 裡的非主程式檔（bench/scan/diag/fit/test_* 等）皆為研究殘留，可直接刪除。
-- **C++ 引擎建不起來？** 確認 MinGW 在 PATH，且用 `-G "MinGW Makefiles"`；g++ 建議 12+。
 
 ---
 
